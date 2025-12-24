@@ -1,0 +1,56 @@
+name: CI/CD Pipeline
+
+# Trigger: Jalankan ketika ada push atau pull request ke main branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Job 1: Build dan Test
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Checkout kode dari repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    # Setup Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    # Install dependencies
+    - name: Install dependencies
+      run: npm install
+    
+    # Run tests
+    - name: Run tests
+      run: npm test
+    
+    # Notify jika berhasil
+    - name: Build success
+      if: success()
+      run: echo "✅ Build and tests passed!"
+
+  # Job 2: Deploy (hanya jika push ke main)
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+    
+    - name: Deployment success
+      run: echo "🚀 Deployed to GitHub Pages!"
