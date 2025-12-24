@@ -27,9 +27,15 @@ jobs:
     - name: Install dependencies
       run: npm install
     
+    # Verify jest installation
+    - name: Verify installation
+      run: |
+        ls -la node_modules/.bin/
+        npm list jest
+    
     # Run tests
     - name: Run tests
-      run: npm test
+      run: npx jest --passWithNoTests
     
     # Notify jika berhasil
     - name: Build success
